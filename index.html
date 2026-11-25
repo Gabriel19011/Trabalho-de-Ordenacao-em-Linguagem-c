@@ -1,68 +1,68 @@
 <!DOCTYPE html>
-<HTML língua="pt-BR">
-<cabeça>
-    <meta conjunto de caracteres="UTF-8">
-    <meta nome="janela de visualização" conteúdo="largura=largura do dispositivo, escala inicial=1,0">
-    <título>Ordem Visual de Bolas — Seleção, Inserção &amp; Classificação por bolhas</título>
-    <roteiro fonte="https://cdn.tailwindcss.com"></roteiro>
-    <link rela="pré-conexão" href="https://fonts.googleapis.com">
-    <link rela="pré-conexão" href="https://fonts.gstatic.com" origem cruzada>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&exibir=trocar" rela="folha de estilo">
-    <estilo>
-        corpo {
-            família de fontes: 'Inter', sem serifa;
-            cor de fundo: #050814;
-            cor: #f8fafc;
-            transbordamento-x: escondido;
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordenação Visual de Bolas — Selection, Insertion &amp; Bubble Sort</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050814;
+            color: #f8fafc;
+            overflow-x: hidden;
         }
         .mono {
-            família de fontes: 'JetBrains Mono', monoespaçado;
+            font-family: 'JetBrains Mono', monospace;
         }
-        tela {
-            exibir: bloquear;
-            largura: 100%;
-            altura: 100%;
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
         }
 
         /* Fundo ambiente dinâmico para dar refração real ao efeito Liquid Glass */
-        .cenário líquido {
-            posição: fixo;
-            inserir: 0;
-            índice z: 0;
-            eventos de ponteiro: nenhum;
-            transbordar: escondido;
-            fundo:
-                gradiente radial(círculo em 18% 12%, RGBA(56, 189, 248, 0,22) 0%, transparente 42%),
-                gradiente radial(círculo em 84% 18%, RGBA(168, 85, 247, 0,22) 0%, transparente 45%),
-                gradiente radial(círculo em 52% 88%, RGBA(236, 72, 153, 0,16) 0%, transparente 48%),
-                gradiente linear(160graus, #040712 0%, #091124 48%, #04060e 100%);
+        .liquid-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 18% 12%, rgba(56, 189, 248, 0.22) 0%, transparent 42%),
+                radial-gradient(circle at 84% 18%, rgba(168, 85, 247, 0.22) 0%, transparent 45%),
+                radial-gradient(circle at 52% 88%, rgba(236, 72, 153, 0.16) 0%, transparent 48%),
+                linear-gradient(160deg, #040712 0%, #091124 48%, #04060e 100%);
         }
-        .orbe líquida {
-            posição: absoluto;
-            raio de borda: 9999px;
-            filtro: borrão(85px);
-            opacidade: 0,52;
-            mudança de vontade: transformar;
+        .liquid-orb {
+            position: absolute;
+            border-radius: 9999px;
+            filter: blur(85px);
+            opacity: 0.52;
+            will-change: transform;
         }
-        .líquido-orb-1 {
-            largura: 44vw;
-            altura: 44vw;
-            largura máxima: 560px;
-            altura máxima: 560px;
-            topo: -12%;
-            esquerda: -8%;
-            fundo: gradiente radial(círculo, RGBA(34, 211, 238, 0,55) 0%, RGBA(59, 130, 246, 0,22) 55%, transparente 75%);
-            animação: orbDrift1 18s facilidade de entrada e saída infinito alternar;
+        .liquid-orb-1 {
+            width: 44vw;
+            height: 44vw;
+            max-width: 560px;
+            max-height: 560px;
+            top: -12%;
+            left: -8%;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.55) 0%, rgba(59, 130, 246, 0.22) 55%, transparent 75%);
+            animation: orbDrift1 18s ease-in-out infinite alternate;
         }
-        .líquido-orb-2 {
-            largura: 42vw;
-            altura: 42vw;
-            largura máxima: 540px;
-            altura máxima: 540px;
-            topo: 22%;
-            certo: -10%;
-            fundo: gradiente radial(círculo, RGBA(168, 85, 247, 0,52) 0%, RGBA(236, 72, 153, 0,22) 55%, transparente 75%);
-            animação: orbDrift2 22s facilidade de entrada e saída infinito alternar;
+        .liquid-orb-2 {
+            width: 42vw;
+            height: 42vw;
+            max-width: 540px;
+            max-height: 540px;
+            top: 22%;
+            right: -10%;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.52) 0%, rgba(236, 72, 153, 0.22) 55%, transparent 75%);
+            animation: orbDrift2 22s ease-in-out infinite alternate;
         }
         .liquid-orb-3 {
             width: 38vw;
@@ -5286,7 +5286,7 @@ Continuar ou encerrar</pre>
                         c.fill();
                     }
 
-                    16.fillStyle = s.color;
+                    c.fillStyle = s.color;
                     c.beginPath();
                     c.arc(p.x, p.y, rDraw, 0, Math.PI * 2);
                     c.fill();
@@ -5316,7 +5316,7 @@ Continuar ou encerrar</pre>
                 <div class="flex justify-between gap-3"><span class="text-cyan-400">Bubble:</span><span class="text-slate-200">${fmtVal(r.bubble)}</span></div>
             `;
 
-'rgba(15, 23, 42, 0)'const anchorX = padLeft + (bestIdx / (BENCH_SIZES.length - 1)) * plotW;
+            const anchorX = padLeft + (bestIdx / (BENCH_SIZES.length - 1)) * plotW;
             const tipW = chartTooltip.offsetWidth || 170;
             const leftPos = anchorX + tipW + 16 > w ? Math.max(8, anchorX - tipW - 12) : anchorX + 12;
             chartTooltip.style.left = `${leftPos}px`;
@@ -6291,92 +6291,92 @@ Continuar ou encerrar</pre>
             btn.addEventListener('click', () => {
                 traceAlgo = btn.getAttribute('data-trace-algo');
                 traceAlgoButtons.forEach(b => {
-                    b.nome sim classe = 'trace-algo-btn liquid-btn py-2 px-2 arredondado-2xl texto-xs fonte-negrito texto-ardósia-200 centro-texto';
+                    b.className = 'trace-algo-btn liquid-btn py-2 px-2 rounded-2xl text-xs font-bold text-slate-200 text-center';
                 });
-                btn.nome sim classe = 'trace-algo-btn liquid-btn liquid-active-indigo py-2 px-2 arredondado-2xl texto-xs fonte-negrito texto-centro';
-                reconstituirTraceSimulação();
+                btn.className = 'trace-algo-btn liquid-btn liquid-active-indigo py-2 px-2 rounded-2xl text-xs font-bold text-center';
+                rebuildTraceSimulation();
             });
         });
 
-        se (tracePresetSelecionar) {
-            tracePresetSelecionar.addEventListener('mudança', () => {
-                const modo = tracePresetSelecionar.valentia;
-                se (modo === 'deslizar') traceBaseArray = [23, 4, 67, -8, 21];
-                outro se (modo === 'pequeno5') traceBaseArray = [4, 2, 5, 1, 3];
-                outro se (modo === 'crescente') traceBaseArray = [10, 20, 30, 40, 50];
-                outro se (modo === 'decrescente') traceBaseArray = [50, 40, 30, 20, 10];
-                outro traceBaseArray = Matriz.de({ Comprimento: 6 }, () => Matemática.chão(Matemática.aleatório() * 90) - 10);
-                reconstituirTraceSimulação();
+        if (tracePresetSelect) {
+            tracePresetSelect.addEventListener('change', () => {
+                const mode = tracePresetSelect.value;
+                if (mode === 'slide') traceBaseArray = [23, 4, 67, -8, 21];
+                else if (mode === 'small5') traceBaseArray = [4, 2, 5, 1, 3];
+                else if (mode === 'crescente') traceBaseArray = [10, 20, 30, 40, 50];
+                else if (mode === 'decrescente') traceBaseArray = [50, 40, 30, 20, 10];
+                else traceBaseArray = Array.from({ length: 6 }, () => Math.floor(Math.random() * 90) - 10);
+                rebuildTraceSimulation();
             });
         }
 
-        se (btnTraceAleatório) {
-            btnTraceAleatório.addEventListener('camarilha', () => {
-                traceBaseArray = Matriz.de({ Comprimento: 6 }, () => Matemática.chão(Matemática.aleatório() * 95) - 10);
-                se (tracePresetSelecionar) tracePresetSelecionar.valentia = 'personalizado';
-                reconstituirTraceSimulação();
-                maisrarTorrada('Novo vetor classificado para a animação do código C!');
+        if (btnTraceRandom) {
+            btnTraceRandom.addEventListener('click', () => {
+                traceBaseArray = Array.from({ length: 6 }, () => Math.floor(Math.random() * 95) - 10);
+                if (tracePresetSelect) tracePresetSelect.value = 'custom';
+                rebuildTraceSimulation();
+                showToast('Novo vetor sorteado para a animação do código C!');
             });
         }
 
-        se (traceScrubber) {
-            traceScrubber.addEventListener('entrada', () => {
+        if (traceScrubber) {
+            traceScrubber.addEventListener('input', () => {
                 stopTracePlayback();
-                índio de rastreamento = parseInt(traceScrubber.valentia, 10) || 0;
+                traceIndex = parseInt(traceScrubber.value, 10) || 0;
                 renderTraceStep();
             });
         }
 
-        se (btnTraceReiniciar) {
-            btnTraceReiniciar.addEventListener('camarilha', () => {
+        if (btnTraceRestart) {
+            btnTraceRestart.addEventListener('click', () => {
                 stopTracePlayback();
-                índio de rastreamento = 0;
+                traceIndex = 0;
                 renderTraceStep();
             });
         }
 
-        se (btnTracePrev) {
-            btnTracePrev.addEventListener('camarilha', () => {
+        if (btnTracePrev) {
+            btnTracePrev.addEventListener('click', () => {
                 stopTracePlayback();
-                se (índio de rastreamento > 0) {
-                    índio de rastreamento--;
+                if (traceIndex > 0) {
+                    traceIndex--;
                     renderTraceStep();
                 }
             });
         }
 
-        se (btnTracePróximo) {
-            btnTracePróximo.addEventListener('camarilha', () => {
+        if (btnTraceNext) {
+            btnTraceNext.addEventListener('click', () => {
                 stopTracePlayback();
-                se (índio de rastreamento < traceFrames.Comprimento - 1) {
-                    índio de rastreamento++;
+                if (traceIndex < traceFrames.length - 1) {
+                    traceIndex++;
                     renderTraceStep();
                 }
             });
         }
 
-        se (btnTracePlay) {
-            btnTracePlay.addEventListener('camarilha', () => {
-                se (temporizador de rastreamento) stopTracePlayback();
-                outro iniciarTracePlayback();
+        if (btnTracePlay) {
+            btnTracePlay.addEventListener('click', () => {
+                if (traceTimer) stopTracePlayback();
+                else startTracePlayback();
             });
         }
 
-        Janela.carregar = diversidade () {
-            redimensionarTela();
+        window.onload = function () {
+            resizeCanvas();
             readFixedResultsFromHTML();
-            Bolas de Início(falso);
-            redefinirSlideLab();
-            reconstituirTraceSimulação();
-            iniciarAnimação fazer Gráfico de Bancada();
+            initBalls(false);
+            resetSlideLab();
+            rebuildTraceSimulation();
+            startBenchChartAnimation();
             renderCodeTabCharts();
-            renderDocsGráficos();
-            solicitaçãoAnimationFrame(() => {
-                gráfico de banco Desenhar(1);
-                maisGráficoDicaDaFerramaNoÍndice(gráficoSelectedIdx);
+            renderDocsCharts();
+            requestAnimationFrame(() => {
+                drawBenchChart(1);
+                showChartTooltipAtIndex(chartSelectedIdx);
             });
-            solicitaçãoAnimationFrame(animarLoop);
+            requestAnimationFrame(animateLoop);
         };
-    </roteiro>
-</corpo>
-        </HTML>
+    </script>
+</body>
+</html>
