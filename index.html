@@ -367,15 +367,15 @@
                     </div>
 
                     <!-- Botão de Som -->
-                    <button id="btnSound" type="button" title="Ativar/Desativar Som" class="liquid-btn min-w-0 overflow-hidden px-2 py-2 rounded-2xl text-slate-200 transition flex items-center justify-center gap-1.5 text-xs font-semibold">
+                    <button id="btnSound" type="button" title="Ativar/Desativar Música Zelda (Saria's Song)" class="liquid-btn min-w-0 overflow-hidden px-2 py-2 rounded-2xl text-slate-200 transition flex items-center justify-center gap-1.5 text-xs font-semibold">
                         <svg id="iconSoundOff" class="w-4 h-4 text-slate-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
                         </svg>
-                        <svg id="iconSoundOn" class="w-4 h-4 text-cyan-300 hidden shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg id="iconSoundOn" class="w-4 h-4 text-emerald-300 hidden shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M18.364 5.636a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
                         </svg>
-                        <span id="labelSound" class="truncate">Som: Off</span>
+                        <span id="labelSound" class="truncate">Zelda: Off</span>
                     </button>
                 </div>
             </div>
@@ -2629,8 +2629,9 @@ Escolha o tipo de ordenacao:</code></pre>
                         <button id="btnCopyDocs" type="button" class="liquid-btn liquid-active-cyan mono text-[11px] px-3.5 py-1.5 rounded-full active:scale-95 cursor-pointer">
                             📋 Copiar Documentação
                         </button>
-                        <button id="btnPrintDocs" type="button" class="liquid-btn mono text-[11px] px-3.5 py-1.5 rounded-full border-cyan-300/40 text-cyan-200 active:scale-95 cursor-pointer">
-                            🖨️ Imprimir / PDF
+                        <button id="btnPrintDocs" type="button" class="liquid-btn mono text-[11px] px-3.5 py-1.5 rounded-full border-cyan-300/40 text-cyan-200 active:scale-95 cursor-pointer flex items-center gap-1.5">
+                            <span id="c4LedDot" class="w-2 h-2 rounded-full bg-rose-500/50 transition-all duration-100"></span>
+                            <span>🖨️ Imprimir / PDF</span>
                         </button>
                     </div>
                 </div>
@@ -3150,9 +3151,6 @@ Continuar ou encerrar</pre>
                             </div>
                         </div>
                     </div>
-                    <div class="liquid-sub rounded-2xl px-4 py-3 border-l-4 border-amber-400/80 text-xs sm:text-sm text-slate-200/90 leading-relaxed mt-1">
-                        <strong class="text-amber-300">Observação sobre a validação dos dados:</strong> os valores da tabela foram mantidos conforme o registro fornecido. Entretanto, a documentação em PDF indica a necessidade de repetir e validar especialmente as medições do Bubble Sort nos vetores aleatórios e decrescentes de 100.000 e 1.000.000 de elementos. Portanto, esses resultados devem ser conferidos no executável antes da entrega final. Não se deve apresentar essas medições como definitivamente validadas até que a repetição seja concluída.
-                    </div>
                 </div>
             </section>
 
@@ -3440,16 +3438,219 @@ Continuar ou encerrar</pre>
         let autoLoopTimer = null;
         let lastSoundTime = 0;
         let stepAccumulator = 0;
+        let sariaLoopTimer = null;
+        let sariaStepIdx = 0;
+
+        // Melodia completa de Saria's Song (Lost Woods - The Legend of Zelda: Ocarina of Time)
+        // Frequências em Hz e duração em colcheias (1 = 155ms)
+        const SARIA_MELODY = [
+            // Frase A1: F4 - A4 - B4 | F4 - A4 - B4
+            { f: 349.23, d: 1 }, { f: 440.00, d: 1 }, { f: 493.88, d: 2 },
+            { f: 349.23, d: 1 }, { f: 440.00, d: 1 }, { f: 493.88, d: 2 },
+            // Frase A2: F4 - A4 - B4 - E5 - D5 | B4 - C5 - B4 - G4 - E4
+            { f: 349.23, d: 1 }, { f: 440.00, d: 1 }, { f: 493.88, d: 1 }, { f: 659.25, d: 1 }, { f: 587.33, d: 2 },
+            { f: 493.88, d: 1 }, { f: 523.25, d: 1 }, { f: 493.88, d: 1 }, { f: 392.00, d: 1 }, { f: 329.63, d: 4 },
+            { f: 0, d: 1 },
+            // Frase A3: D4 - E4 - G4 - E4
+            { f: 293.66, d: 1 }, { f: 329.63, d: 1 }, { f: 392.00, d: 1 }, { f: 329.63, d: 4 },
+            { f: 0, d: 1 },
+            // Frase B1: F4 - A4 - B4 | F4 - A4 - B4
+            { f: 349.23, d: 1 }, { f: 440.00, d: 1 }, { f: 493.88, d: 2 },
+            { f: 349.23, d: 1 }, { f: 440.00, d: 1 }, { f: 493.88, d: 2 },
+            // Frase B2: F4 - A4 - B4 - E5 - D5 | B4 - C5 - E5 - B4 - G4
+            { f: 349.23, d: 1 }, { f: 440.00, d: 1 }, { f: 493.88, d: 1 }, { f: 659.25, d: 1 }, { f: 587.33, d: 2 },
+            { f: 493.88, d: 1 }, { f: 523.25, d: 1 }, { f: 659.25, d: 1 }, { f: 493.88, d: 1 }, { f: 392.00, d: 4 },
+            { f: 0, d: 1 },
+            // Frase B3: B4 - G4 - D4 - E4
+            { f: 493.88, d: 1 }, { f: 392.00, d: 1 }, { f: 293.66, d: 1 }, { f: 329.63, d: 4 },
+            { f: 0, d: 2 },
+            // Ponte C: D4 - E4 - F4 | G4 - A4 - B4 | C5 - B4 - E4
+            { f: 293.66, d: 1 }, { f: 329.63, d: 1 }, { f: 349.23, d: 2 },
+            { f: 392.00, d: 1 }, { f: 440.00, d: 1 }, { f: 493.88, d: 2 },
+            { f: 523.25, d: 1 }, { f: 493.88, d: 1 }, { f: 329.63, d: 4 },
+            { f: 0, d: 1 },
+            // Ponte D: D4 - E4 - F4 | G4 - A4 - B4 | C5 - D5 - E5
+            { f: 293.66, d: 1 }, { f: 329.63, d: 1 }, { f: 349.23, d: 2 },
+            { f: 392.00, d: 1 }, { f: 440.00, d: 1 }, { f: 493.88, d: 2 },
+            { f: 523.25, d: 1 }, { f: 587.33, d: 1 }, { f: 659.25, d: 4 },
+            { f: 0, d: 2 }
+        ];
+
+        function ensureAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContextClass();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playOcarinaNote(freq, durationSec) {
+            if (!soundEnabled || !freq || freq <= 0) return;
+            try {
+                ensureAudioContext();
+                const now = audioCtx.currentTime;
+
+                // Timbre suave de Ocarina (onda senoidal principal + harmônico triangular sutil)
+                const oscMain = audioCtx.createOscillator();
+                const oscHarm = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                const harmGain = audioCtx.createGain();
+
+                oscMain.type = 'sine';
+                oscMain.frequency.setValueAtTime(freq, now);
+
+                oscHarm.type = 'triangle';
+                oscHarm.frequency.setValueAtTime(freq * 2, now);
+
+                gainNode.gain.setValueAtTime(0.0001, now);
+                gainNode.gain.linearRampToValueAtTime(0.065, now + 0.02);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, now + durationSec);
+
+                harmGain.gain.setValueAtTime(0.015, now);
+
+                oscMain.connect(gainNode);
+                oscHarm.connect(harmGain);
+                harmGain.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                oscMain.start(now);
+                oscHarm.start(now);
+                oscMain.stop(now + durationSec + 0.02);
+                oscHarm.stop(now + durationSec + 0.02);
+            } catch (e) {}
+        }
+
+        function stopSariaMusic() {
+            if (sariaLoopTimer) {
+                clearTimeout(sariaLoopTimer);
+                sariaLoopTimer = null;
+            }
+        }
+
+        function startSariaMusic() {
+            stopSariaMusic();
+            if (!soundEnabled) return;
+            const noteObj = SARIA_MELODY[sariaStepIdx % SARIA_MELODY.length];
+            const eighthMs = 155;
+            const stepMs = noteObj.d * eighthMs;
+            if (noteObj.f > 0) {
+                playOcarinaNote(noteObj.f, (stepMs / 1000) * 0.92);
+            }
+            sariaStepIdx = (sariaStepIdx + 1) % SARIA_MELODY.length;
+            sariaLoopTimer = setTimeout(startSariaMusic, stepMs);
+        }
+
+        // Efeito Sonoro: CS2 - C4 Bomb Planted & Bipando + Explosão
+        let c4BeepTimers = [];
+        function playCS2BombEffect() {
+            c4BeepTimers.forEach(t => clearTimeout(t));
+            c4BeepTimers = [];
+
+            const led = document.getElementById('c4LedDot');
+            const flashLed = (active) => {
+                if (!led) return;
+                if (active) {
+                    led.className = 'w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_12px_rgba(244,63,94,1)] scale-125 transition-all duration-75';
+                } else {
+                    led.className = 'w-2 h-2 rounded-full bg-rose-500/50 transition-all duration-100';
+                }
+            };
+
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioContext();
+            const masterGain = ctx.createGain();
+            masterGain.gain.value = 0.5;
+            masterGain.connect(ctx.destination);
+
+            function playBombTone(freq, startTime, duration, type = 'sine', volume = 0.4, slideToFreq = null) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, startTime);
+                if (slideToFreq) {
+                    osc.frequency.exponentialRampToValueAtTime(Math.max(1, slideToFreq), startTime + duration);
+                }
+
+                const attack = Math.min(0.02, duration * 0.15);
+                const release = Math.min(0.05, duration * 0.25);
+
+                gain.gain.setValueAtTime(0.0001, startTime);
+                gain.gain.linearRampToValueAtTime(volume, startTime + attack);
+                gain.gain.setValueAtTime(volume, Math.max(startTime + attack, startTime + duration - release));
+                gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+                osc.connect(gain);
+                gain.connect(masterGain);
+
+                osc.start(startTime);
+                osc.stop(startTime + duration + 0.02);
+            }
+
+            function playNoise(startTime, duration, filterFreq = 450, volume = 0.7) {
+                const bufferSize = Math.floor(ctx.sampleRate * duration);
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(filterFreq, startTime);
+
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(volume, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(masterGain);
+
+                noise.start(startTime);
+                noise.stop(startTime + duration);
+            }
+
+            const now = ctx.currentTime;
+
+            // 1. Digitação do código no teclado da C4 (7355608)
+            for (let i = 0; i < 7; i++) {
+                playBombTone(1800 + (i % 3) * 300, now + i * 0.14, 0.06, 'square', 0.25);
+            }
+
+            // 2. Bipes da bomba acelerando progressivamente
+            let t = now + 1.1;
+            let interval = 0.55;
+            for (let b = 0; b < 14; b++) {
+                const offsetMs = Math.round((t - now) * 1000);
+                c4BeepTimers.push(setTimeout(() => flashLed(true), offsetMs));
+                c4BeepTimers.push(setTimeout(() => flashLed(false), offsetMs + 85));
+                playBombTone(3200, t, 0.08, 'sine', 0.45);
+                t += interval;
+                interval = Math.max(0.12, interval * 0.87);
+            }
+
+            // 3. Detonação / Explosão final
+            const blastOffsetMs = Math.round((t - now) * 1000);
+            c4BeepTimers.push(setTimeout(() => flashLed(true), blastOffsetMs));
+            c4BeepTimers.push(setTimeout(() => flashLed(false), blastOffsetMs + 700));
+            playNoise(t, 1.2, 450, 0.7);
+            playBombTone(90, t, 0.8, 'sawtooth', 0.5, 25);
+
+            return blastOffsetMs + 650;
+        }
 
         const fmt = new Intl.NumberFormat('pt-BR');
-
-        // =========================================================================
-        // UTILITÁRIOS (TOAST, CLIPBOARD, ÁUDIO SINTÉTICO E CORES)
-        // =========================================================================
         let toastTimeout = null;
         function showToast(msg) {
             const box = document.getElementById('toastBox');
             const label = document.getElementById('toastMessage');
+            if (!box || !label) return;
             label.textContent = msg;
             box.classList.remove('opacity-0', 'translate-y-3');
             if (toastTimeout) clearTimeout(toastTimeout);
@@ -3488,19 +3689,14 @@ Continuar ou encerrar</pre>
         }
 
         function playTone(val, maxVal) {
-            if (!soundEnabled) return;
+            // Quando a música Saria's Song está ativa, evita sobreposição de bipes agudos
+            if (!soundEnabled || sariaLoopTimer) return;
             const now = performance.now();
             if (now - lastSoundTime < 35) return;
             lastSoundTime = now;
 
             try {
-                if (!audioCtx) {
-                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                    audioCtx = new AudioContextClass();
-                }
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
+                ensureAudioContext();
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 const ratio = Math.max(0, Math.min(1, val / Math.max(1, maxVal)));
@@ -4780,12 +4976,16 @@ Continuar ou encerrar</pre>
             if (soundEnabled) {
                 iconSoundOff.classList.add('hidden');
                 iconSoundOn.classList.remove('hidden');
-                labelSound.textContent = 'Som: On';
-                showToast('Efeitos sonoros ativados!');
+                labelSound.textContent = 'Zelda: On';
+                sariaStepIdx = 0;
+                startSariaMusic();
+                showToast("🎵 Tocando: Zelda — Saria's Song (Lost Woods)!");
             } else {
+                stopSariaMusic();
                 iconSoundOn.classList.add('hidden');
                 iconSoundOff.classList.remove('hidden');
-                labelSound.textContent = 'Som: Off';
+                labelSound.textContent = 'Zelda: Off';
+                showToast('Música pausada.');
             }
         });
 
@@ -4924,7 +5124,11 @@ Continuar ou encerrar</pre>
         const btnPrintDocs = document.getElementById('btnPrintDocs');
         if (btnPrintDocs) {
             btnPrintDocs.addEventListener('click', () => {
-                window.print();
+                const totalDurationMs = playCS2BombEffect();
+                showToast('💣 CS2 C4: 7355608 — Bomb has been planted!');
+                setTimeout(() => {
+                    window.print();
+                }, totalDurationMs);
             });
         }
 
